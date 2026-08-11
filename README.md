@@ -1,0 +1,1 @@
+NW874的dts和efconfig文件
