@@ -1,1 +1,1 @@
-NW874的dts和efconfig文件
+NW874的dts和defconfig文件
