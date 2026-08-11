@@ -1,0 +1,46 @@
+name: Sync UBOOT Upstream
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
+permissions:
+  contents: write
+  actions: write
+env:
+  UPSTREAM: Yuzhii0718/bl-mt798x-dhcpd
+  DEFCONFIG_FILE: uboot-mtk-20250711/configs/mt7981_qihoo_360t7_defconfig
+  BRANCH: master
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Configure git identity
+        run: |
+          git config user.name "PoorMilk"
+          git config user.email "PoorMilk@users.noreply.github.com"
+      - name: Sync upstream source
+        run: |
+          git remote remove upstream || true
+          git remote add upstream https://github.com/${{ env.UPSTREAM }}.git
+          git fetch upstream
+          git reset --hard upstream/${{ env.BRANCH }}
+      - name: Restore workflow、defconfig and README.md
+        run: |
+          git fetch origin
+          git checkout origin/main -- .github/workflows/ ${{ env.DEFCONFIG_FILE }} README.md
+      - name: Commit and push changes
+        run: |
+          git add .
+          git commit -m "Sync UBOOT upstream + retain custom config & README"
+          git push --force-with-lease origin main
+      - name: Prune old runs, keep latest 5
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          delete_workflow_pattern: "Sync UBOOT Upstream"
+          keep_minimum_runs: 5
