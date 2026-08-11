@@ -1,1 +1,1 @@
-NW874的dts和defconfig文件，包括工作流备份
+NW874的dts和defconfig文件，以及工作流备份
